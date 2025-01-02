@@ -1,0 +1,48 @@
+local farming = false
+
+-- Function to start farming
+local function startFarming()
+    while farming do
+        task.wait()  -- Adjust the wait time to control speed
+        
+        -- Loop through tools in the backpack
+        for _, tool in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if tool:IsA("Tool") and tool:FindFirstChild("Handle") and tool.Handle:FindFirstChild("up") and tool.Handle.up:FindFirstChild("RemoteEvent") then
+                for i = 1, 10 do
+                    tool.Handle.up.RemoteEvent:FireServer()
+                end
+            end
+        end
+
+        -- Loop through tools in the character
+        local character = game.Players.LocalPlayer.Character
+        if character then
+            for _, tool in ipairs(character:GetChildren()) do
+                if tool:IsA("Tool") and tool:FindFirstChild("Handle") and tool.Handle:FindFirstChild("up") and tool.Handle.up:FindFirstChild("RemoteEvent") then
+                    for i = 1, 10 do
+                        tool.Handle.up.RemoteEvent:FireServer()
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Stop farming
+local function stopFarming()
+    farming = false
+end
+
+-- Handle chat commands
+game.Players.LocalPlayer.Chatted:Connect(function(msg)
+    if string.lower(msg):sub(1, 5) == "!farm" then
+        farming = true
+        startFarming()  -- Start farming
+    end 
+end)
+
+game.Players.LocalPlayer.Chatted:Connect(function(msg)
+    if string.lower(msg):sub(1, 7) == "!unfarm" then
+        stopFarming()  -- Stop farming
+    end
+end)
