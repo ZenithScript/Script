@@ -1,0 +1,118 @@
+-- Gui to Lua
+-- Version: 3.2
+
+-- Instances:
+
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local TitleLabel = Instance.new("TextLabel")
+local PowerLabel = Instance.new("TextLabel")
+local GainRateLabel = Instance.new("TextLabel")
+local ProjectionLabel = Instance.new("TextLabel")
+
+-- Properties:
+
+local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local existingGui = PlayerGui:FindFirstChild("main")
+if existingGui then
+    existingGui:Destroy()
+end
+
+-- Initialize ScreenGui
+ScreenGui.Name = "main"
+ScreenGui.Parent = PlayerGui
+ScreenGui.ResetOnSpawn = false -- Prevent resetting on respawn
+
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20) -- Visible background for clarity
+Frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+Frame.Position = UDim2.new(0.4, 0, 0.3, 0) -- Centered position
+Frame.Size = UDim2.new(0, 250, 0, 160) -- Proper dimensions
+Frame.Active = true
+Frame.Draggable = true
+Frame.BackgroundTransparency = 1 -- Fully visible for proper dragging
+
+TitleLabel.Parent = Frame
+TitleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TitleLabel.BorderColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.Size = UDim2.new(1, 0, 0, 40)
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.Text = "Stats Viewer"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextSize = 25
+TitleLabel.TextScaled = false -- Adjust text size automatically
+
+PowerLabel.Parent = Frame
+PowerLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+PowerLabel.BorderColor3 = Color3.fromRGB(255, 255, 255)
+PowerLabel.Position = UDim2.new(0, 0, 0.2, 0)
+PowerLabel.Size = UDim2.new(1, 0, 0, 40)
+PowerLabel.Font = Enum.Font.SourceSans
+PowerLabel.Text = "Power: 0"
+PowerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+PowerLabel.TextSize = 18
+PowerLabel.TextScaled = nil
+
+GainRateLabel.Parent = Frame
+GainRateLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+GainRateLabel.BorderColor3 = Color3.fromRGB(255, 255, 255)
+GainRateLabel.Position = UDim2.new(0, 0, 0.4, 0)
+GainRateLabel.Size = UDim2.new(1, 0, 0, 40)
+GainRateLabel.Font = Enum.Font.SourceSans
+GainRateLabel.Text = "Gain Rate: 0"
+GainRateLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+GainRateLabel.TextSize = 18
+GainRateLabel.TextScaled = nil
+
+ProjectionLabel.Parent = Frame
+ProjectionLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ProjectionLabel.BorderColor3 = Color3.fromRGB(255, 255, 255)
+ProjectionLabel.Position = UDim2.new(0, 0, 0.6, 0)
+ProjectionLabel.Size = UDim2.new(1, 0, 0, 40)
+ProjectionLabel.Font = Enum.Font.SourceSans
+ProjectionLabel.Text = "Projection: 0"
+ProjectionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+ProjectionLabel.TextSize = 18
+ProjectionLabel.TextScaled = nil
+
+-- Number formatting function
+local function formatNumber(value)
+    if value >= 1e12 then
+        return string.format("%.2e", value) -- Scientific notation for large numbers
+    else
+        return tostring(math.floor(value)) -- Normal number formatting
+    end
+end
+
+-- Script Logic:
+
+local function UpdateStats()
+    local player = game.Players.LocalPlayer
+    local leaderstats = player:WaitForChild("leaderstats")
+    local powerStat = leaderstats:FindFirstChild("Power")
+
+    local lastPower = powerStat.Value
+    local lastTime = tick()
+
+    while task.wait(0.2) do
+        -- Calculate power gain rate
+        local currentPower = powerStat.Value
+        local currentTime = tick()
+        local timeElapsed = currentTime - lastTime
+
+        local gainRate = (currentPower - lastPower) / timeElapsed
+        lastPower = currentPower
+        lastTime = currentTime
+
+        -- Project power for the next hour
+        local hourlyProjection = gainRate * 3600
+
+        -- Update UI labels with formatted numbers
+        PowerLabel.Text = "Power: " .. formatNumber(currentPower)
+        GainRateLabel.Text = string.format("Gain Rate: %s per second", formatNumber(gainRate))
+        ProjectionLabel.Text = string.format("Projection: %s per hour", formatNumber(hourlyProjection))
+    end
+end
+
+-- Start updating stats
+coroutine.wrap(UpdateStats)()
