@@ -1,0 +1,45 @@
+-- Define your custom animations
+local animations = {
+    idle1 = "http://www.roblox.com/asset/?id=782841498",
+    idle2 = "http://www.roblox.com/asset/?id=782845736",
+    walk = "http://www.roblox.com/asset/?id=782843345",
+    run = "http://www.roblox.com/asset/?id=782842708",
+    jump = "http://www.roblox.com/asset/?id=782847020",
+    climb = "http://www.roblox.com/asset/?id=782843869",
+    fall = "http://www.roblox.com/asset/?id=782846423"
+}
+
+-- Function to apply animations
+local function applyAnimations(character)
+    -- Wait for the necessary parts to load
+    local humanoid = character:WaitForChild("Humanoid")
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    -- Apply animations to the Animate script
+    local animateScript = character:FindFirstChild("Animate")
+    if animateScript then
+        animateScript.idle.Animation1.AnimationId = animations.idle1
+        animateScript.idle.Animation2.AnimationId = animations.idle2
+        animateScript.walk.WalkAnim.AnimationId = animations.walk
+        animateScript.run.RunAnim.AnimationId = animations.run
+        animateScript.jump.JumpAnim.AnimationId = animations.jump
+        animateScript.climb.ClimbAnim.AnimationId = animations.climb
+        animateScript.fall.FallAnim.AnimationId = animations.fall
+    end
+end
+
+-- Listen for character respawn
+local player = game.Players.LocalPlayer
+player.CharacterAdded:Connect(function(character)
+    -- Ensure the character is fully loaded before applying animations
+    character:WaitForChild("Humanoid")
+    character:WaitForChild("HumanoidRootPart")
+
+    -- Apply the animations
+    applyAnimations(character)
+end)
+
+-- Apply animations to the current character if it exists
+if player.Character then
+    applyAnimations(player.Character)
+end
